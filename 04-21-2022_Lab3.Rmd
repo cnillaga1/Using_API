@@ -1,0 +1,106 @@
+---
+title: "Lab 3"
+author: "Cesar Nillaga"
+date: "4/16/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE, echo=FALSE}
+library(httr)
+library(jsonlite)
+library(tidyverse)
+library(leaflet)
+library(dplyr)
+```
+
+
+
+
+### Pass Times for U.S. State Captials (100 points)
+
+```{r, echo=FALSE}
+states <- read.table("state_capitals_ll.txt", header = FALSE) # reading in capitals 
+colnames(states) <- c('State', 'Lat', 'Long') # creating new column names
+states <- filter(states, State != "US")
+capitals <- read.table("state_capitals_name.txt")
+colnames(capitals) <- c('State', 'Capital')
+```
+
+
+```{r}
+df <- data.frame()                                                # creating empty data frame
+finalDf <- data.frame()                                           # creating empty data frame
+for(i in 1:53){ 
+  res <- GET("http://api.open-notify.org/iss-pass.json",
+        query = list(lat = states$Lat[i], lon = states$Long[i]))  # looping through all capitals in united states
+  data <- fromJSON(rawToChar(res$content))
+  
+  df <- cbind(data$response[1,2], data$response[2,2], data$response[3,2])     # creating data frame with the next 3 pass times for ith capital  
+  finalDf <- rbind(finalDf, df)                                        # creating final data frame for all pass times  
+}
+```
+
+
+
+```{r}
+colnames(finalDf) <- c("PassTime1", "PassTime2", "PassTime3")                     # changing column names
+finalDf$PassTime1 = as.POSIXct(finalDf$PassTime1, origin="1970-01-01")
+finalDf$PassTime2 = as.POSIXct(finalDf$PassTime2, origin="1970-01-01")            # converting pass time to readable time
+finalDf$PassTime3 = as.POSIXct(finalDf$PassTime3, origin="1970-01-01")
+```
+
+
+### Mapping the Data (150 points)
+
+```{r}
+rocket_icon <- makeIcon(
+  iconUrl = "https://www.freeiconspng.com/thumbs/rocket-ship-png/rocket-ship-png-11.png",    # creating the rocket icon for my map
+  iconWidth = 15, iconHeight = 25)
+                                             
+
+pass <- leaflet() %>%
+  addTiles() %>%
+  addMarkers(lng=states$Long, lat=states$Lat, popup= paste(capitals$Capital, "<br>", "Pass Times: ",              # adding click animation
+                                                                             "<br>", finalDf$PassTime1,
+                                                                             "<br>", finalDf$PassTime2,
+                                                                             "<br>", finalDf$PassTime3 ),
+             label = paste(capitals$Capital, finalDf$PassTime1),                   # hovering animation
+             icon = rocket_icon)                                                     # rocket icon 
+ 
+pass
+```
+
+
+### Drawing the Route of the ISS (50 points)
+
+
+
+```{r}
+rocket_icon <- makeIcon(
+  iconUrl = "https://www.freeiconspng.com/thumbs/rocket-ship-png/rocket-ship-png-11.png", 
+  iconWidth = 15, iconHeight = 25)
+
+states1 <- states %>%                      # arranging for the route of the lines 
+  arrange(Long)                        
+
+
+pass <- leaflet() %>%
+  addTiles() %>%
+  addMarkers(lng=states$Long, lat=states$Lat, popup= paste(capitals$Capital, "<br>", "Pass Times: ", 
+                                                                             "<br>", finalDf$PassTime1,
+                                                                             "<br>", finalDf$PassTime2,
+                                                                             "<br>", finalDf$PassTime3 ),
+             label = paste(capitals$Capital, finalDf$PassTime1),
+             icon = rocket_icon) %>%
+  addPolylines(lat = states1$Lat, lng = states1$Long, color = "red",
+               weight = 3, opacity = 1)
+
+pass
+```
+
+
+
