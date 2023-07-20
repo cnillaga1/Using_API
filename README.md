@@ -10,14 +10,14 @@ One of the Open-Notify APIs provides predictions of pass times for a given locat
 
 [Pass Times API](http://open-notify.org/Open-Notify-API/ISS-Pass-Times/)
 
-### Pass Times for U.S. State Captials (100 points)
+### Pass Times for U.S. State Captials 
 
 You can find the latitudes and longitudes for the U.S. state capitals at [this site](https://people.sc.fsu.edu/~jburkardt/datasets/states/states.html).
 
 1. Use the Pass Times API to get the next 3 predicted pass times for all of the U.S. state capitals. Organize all of this information into a nice data frame (or data frame-like object) that will be easy to use for mapping.
 
 
-### Mapping the Data (150 points)
+### Mapping the Data 
 
 1. Map the U.S. state capitals using `leaflet`
 
@@ -26,7 +26,7 @@ You can find the latitudes and longitudes for the U.S. state capitals at [this s
 3. The hover-over information for each marker should include the name of the state capital and the soonest predicted pass time. The click information should include the name of the state capital and all three predicted pass times. Make sure these times are in an easy-to-read format.
 
 
-### Drawing the Route of the ISS (50 points)
+### Drawing the Route of the ISS 
 
 Check out this video for [adding polylines](https://www.youtube.com/watch?v=iKESL0Iwmmw) to a `leaflet` map.
 
